@@ -11,11 +11,14 @@ import { useGame } from '@/lib/store'
 import { unlockAudio } from '@/lib/sound'
 import { primeTTS } from '@/lib/tts'
 
+const AVATARS = ['🎮', '🎯', '🎲', '🎪', '🎨', '🎭', '🎪', '🎸', '🎺', '🎻', '🎹', '🥁', '🎤', '🎧', '🎬', '🎨', '🎭', '🎪', '🎯', '🎲']
+
 export default function Landing() {
   const nav = useNavigate()
   const identity = useGame((s) => s.identity)
   const setError = useGame((s) => s.setError)
   const [name, setName] = useState(identity.name || '')
+  const [avatar, setAvatar] = useState(identity.avatar || '🎮')
   const [code, setCode] = useState('')
   const [busy, setBusy] = useState<'create' | 'join' | null>(null)
 
@@ -32,7 +35,7 @@ export default function Landing() {
       return
     }
     setBusy('create')
-    const r = await createRoom(name.trim())
+    const r = await createRoom(name.trim(), avatar)
     setBusy(null)
     if (r.ok && r.roomCode) nav(`/room/${r.roomCode}`)
     else setError(r.error || 'Konnte Raum nicht erstellen.')
@@ -50,7 +53,7 @@ export default function Landing() {
       return
     }
     setBusy('join')
-    const r = await joinRoom(code.trim(), name.trim())
+    const r = await joinRoom(code.trim(), name.trim(), avatar)
     setBusy(null)
     if (r.ok) nav(`/room/${code.trim().toUpperCase()}`)
     else setError(r.error || 'Beitritt fehlgeschlagen.')
@@ -113,6 +116,25 @@ export default function Landing() {
                 onKeyDown={(e) => e.key === 'Enter' && onCreate()}
               />
             </div>
+            <div className="mt-4">
+              <label className="label">Avatar wählen</label>
+              <div className="grid grid-cols-5 gap-2">
+                {AVATARS.map((a) => (
+                  <button
+                    key={a}
+                    type="button"
+                    onClick={() => setAvatar(a)}
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg text-2xl transition ${
+                      avatar === a
+                        ? 'bg-brand-500/30 border-2 border-brand-500'
+                        : 'bg-white/5 border-2 border-transparent hover:bg-white/10'
+                    }`}
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+            </div>
             <Button className="mt-4 w-full" size="lg" onClick={onCreate} disabled={busy !== null}>
               <Zap className="h-5 w-5" />
               {busy === 'create' ? 'Erstelle …' : 'Raum erstellen'}
@@ -147,6 +169,25 @@ export default function Landing() {
                   placeholder="z. B. Alex"
                   onKeyDown={(e) => e.key === 'Enter' && onJoin()}
                 />
+              </div>
+              <div>
+                <label className="label">Avatar wählen</label>
+                <div className="grid grid-cols-5 gap-2">
+                  {AVATARS.map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => setAvatar(a)}
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg text-2xl transition ${
+                        avatar === a
+                          ? 'bg-brand-500/30 border-2 border-brand-500'
+                          : 'bg-white/5 border-2 border-transparent hover:bg-white/10'
+                      }`}
+                    >
+                      {a}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
             <Button className="mt-4 w-full" size="lg" variant="secondary" onClick={onJoin} disabled={busy !== null}>

@@ -46,32 +46,47 @@ export function playCue(type: CueType): void {
   if (c.state === 'suspended') c.resume().catch(() => {})
   switch (type) {
     case 'buzz':
-      tone(880, 0, 0.18, 'square', 0.18)
-      tone(660, 0.05, 0.2, 'square', 0.14)
+      // Dramatic buzz - like Jeopardy timer
+      tone(800, 0, 0.15, 'square', 0.2)
+      tone(600, 0.08, 0.15, 'square', 0.18)
+      tone(400, 0.16, 0.2, 'square', 0.15)
       break
     case 'correct':
-      tone(523, 0, 0.12, 'triangle', 0.18)
-      tone(659, 0.12, 0.12, 'triangle', 0.18)
-      tone(784, 0.24, 0.22, 'triangle', 0.2)
+      // Celebratory ascending melody - like winning
+      tone(523, 0, 0.15, 'triangle', 0.2)
+      tone(659, 0.12, 0.15, 'triangle', 0.22)
+      tone(784, 0.24, 0.15, 'triangle', 0.24)
+      tone(1047, 0.36, 0.25, 'triangle', 0.2)
       break
     case 'wrong':
-      tone(220, 0, 0.28, 'sawtooth', 0.16)
-      tone(160, 0.08, 0.34, 'sawtooth', 0.14)
+      // Descending failure sound - classic "buzzer"
+      tone(200, 0, 0.2, 'sawtooth', 0.25)
+      tone(150, 0.1, 0.25, 'sawtooth', 0.22)
+      tone(100, 0.2, 0.3, 'sawtooth', 0.18)
       break
     case 'steal':
-      tone(440, 0, 0.1, 'square', 0.14)
-      tone(620, 0.1, 0.16, 'square', 0.14)
+      // Alert sound for steal opportunity
+      tone(440, 0, 0.08, 'square', 0.16)
+      tone(550, 0.08, 0.08, 'square', 0.18)
+      tone(660, 0.16, 0.12, 'square', 0.2)
       break
     case 'reveal':
-      tone(392, 0, 0.16, 'triangle', 0.16)
-      tone(587, 0.16, 0.3, 'triangle', 0.18)
+      // Dramatic reveal - ascending chord
+      tone(392, 0, 0.2, 'triangle', 0.18)
+      tone(523, 0.15, 0.2, 'triangle', 0.2)
+      tone(659, 0.3, 0.25, 'triangle', 0.22)
+      tone(784, 0.45, 0.3, 'triangle', 0.18)
       break
     case 'start':
-      tone(330, 0, 0.1, 'sine', 0.12)
-      tone(494, 0.1, 0.18, 'sine', 0.14)
+      // Round start - energetic
+      tone(330, 0, 0.1, 'sine', 0.15)
+      tone(440, 0.08, 0.1, 'sine', 0.18)
+      tone(554, 0.16, 0.12, 'sine', 0.2)
+      tone(659, 0.24, 0.15, 'sine', 0.22)
       break
     case 'tick':
-      tone(1000, 0, 0.04, 'sine', 0.08)
+      // Timer tick - sharper
+      tone(1200, 0, 0.03, 'sine', 0.1)
       break
   }
 }

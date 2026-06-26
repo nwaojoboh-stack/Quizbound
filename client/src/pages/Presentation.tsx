@@ -7,14 +7,24 @@ import { useGame } from '@/lib/store'
 import { spectate } from '@/lib/socket'
 import { TimerRing } from '@/components/TimerRing'
 import { CueFlash } from '@/components/CueFlash'
-import { DifficultyBadge } from '@/components/DifficultyBadge'
 import { Logo } from '@/components/Logo'
 import { cn } from '@/lib/cn'
 
 const wrap = {
-  initial: { opacity: 0, scale: 0.98 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.98 },
+  initial: { opacity: 0, scale: 0.95, y: 30 },
+  animate: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
+  exit: { opacity: 0, scale: 0.95, y: -30, transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } },
+}
+
+const cardVariants = {
+  initial: { opacity: 0, rotateX: -15, scale: 0.85 },
+  animate: { opacity: 1, rotateX: 0, scale: 1, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] } },
+  exit: { opacity: 0, rotateX: 15, scale: 0.85, transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } },
+}
+
+const categoryVariants = {
+  initial: { opacity: 0, y: 20, scale: 0.9 },
+  animate: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } },
 }
 
 export default function Presentation() {
@@ -53,7 +63,7 @@ export default function Presentation() {
       <header className="flex items-center justify-between">
         <Logo />
         <div className="flex items-center gap-4">
-          <span className="text-white/40">Runde {state.round}</span>
+          <span className="text-white/60">Runde {state.round}</span>
           <span className="rounded-xl bg-white/5 px-3 py-1.5 font-mono text-xl font-black tracking-[0.3em]">
             {state.roomCode}
           </span>
@@ -74,29 +84,57 @@ export default function Presentation() {
 
           {state.phase === 'category' && (
             <motion.div key="category" {...wrap} className="text-center">
-              <h1 className="mb-8 text-4xl font-black sm:text-5xl">Kategorie-Wahl</h1>
+              <motion.h1
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+                className="mb-8 text-4xl font-black sm:text-5xl"
+              >
+                Kategorie-Wahl
+              </motion.h1>
               <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 lg:grid-cols-3">
-                {state.categoryOptions.map((o) => (
-                  <div key={o.id} className="card flex flex-col items-center p-6">
+                {state.categoryOptions.map((o, i) => (
+                  <motion.div
+                    key={o.id}
+                    variants={categoryVariants}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ delay: i * 0.1 }}
+                    className="card flex flex-col items-center p-6"
+                  >
                     <span className="text-2xl font-bold">{o.category}</span>
                     <span className="my-2 font-mono text-4xl font-black text-gradient">{o.points}</span>
-                    <DifficultyBadge difficulty={o.difficulty} />
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-              <p className="mt-8 text-xl text-white/50">
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-8 text-xl text-white/50"
+              >
                 {state.votedPlayerIds.length}/{contestants.length} haben abgestimmt …
-              </p>
+              </motion.p>
             </motion.div>
           )}
 
           {(state.phase === 'drop' || state.phase === 'hotseat' || state.phase === 'reveal') && q && (
             <motion.div key="question" {...wrap} className="mx-auto w-full max-w-5xl text-center">
-              <div className="mb-6 flex items-center justify-center gap-4">
-                <span className="text-xl font-semibold uppercase tracking-wider text-white/50">{q.category}</span>
-                <DifficultyBadge difficulty={q.difficulty} points={q.points} />
-              </div>
-              <p className="text-4xl font-black leading-tight sm:text-6xl">{q.text}</p>
+              <motion.div
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="space-y-6"
+              >
+                <div className="mb-6 flex items-center justify-center gap-4">
+                  <span className="text-xl font-semibold uppercase tracking-wider text-white/50">{q.category}</span>
+                  <div className="rounded-lg bg-brand-500/20 px-3 py-1 text-sm font-bold text-brand-300">
+                    +{q.points}
+                  </div>
+                </div>
+                <p className="text-4xl font-black leading-tight sm:text-6xl">{q.text}</p>
+              </motion.div>
 
               {state.phase === 'drop' && (
                 <div className="mt-10 inline-flex items-center gap-3 rounded-full bg-rose-600/20 px-6 py-3 text-2xl font-black uppercase tracking-wider text-rose-300">
@@ -156,7 +194,7 @@ export default function Presentation() {
                 : 'border-white/10 bg-white/5',
             )}
           >
-            <span className={cn('font-mono font-black', i === 0 ? 'text-yellow-400' : 'text-white/40')}>
+            <span className={cn('font-mono font-black', i === 0 ? 'text-yellow-400' : 'text-white/60')}>
               {i + 1}
             </span>
             <span className="h-3 w-3 rounded-full" style={{ background: p.color }} />

@@ -1,5 +1,4 @@
 import type { CategoryOption } from '@quiz/shared'
-import { DifficultyBadge } from './DifficultyBadge'
 import { cn } from '@/lib/cn'
 
 export function CategoryGrid({
@@ -34,9 +33,6 @@ export function CategoryGrid({
             <div className="flex items-center justify-between gap-2">
               <span className="text-lg font-bold">{o.category}</span>
               <span className="font-mono text-2xl font-black text-gradient">{o.points}</span>
-            </div>
-            <div className="mt-2">
-              <DifficultyBadge difficulty={o.difficulty} />
             </div>
             {sel && (
               <span className="absolute right-3 top-3 text-[10px] font-bold uppercase tracking-wide text-brand-300">

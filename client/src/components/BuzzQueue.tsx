@@ -10,7 +10,7 @@ export function BuzzQueue({
   activePlayerId: string | null
 }) {
   if (!queue.length) {
-    return <div className="rounded-xl border border-dashed border-white/10 px-3 py-6 text-center text-sm text-white/40">Noch kein Buzz.</div>
+    return <div className="rounded-xl border border-dashed border-white/10 px-3 py-6 text-center text-sm text-white/60">Noch kein Buzz.</div>
   }
   const first = queue[0]?.normalizedMs ?? 0
   return (

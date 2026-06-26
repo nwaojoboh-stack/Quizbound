@@ -4,7 +4,6 @@ import type {
   CreateRoomResult,
   GameSettings,
   JoinRoomResult,
-  LiveQuestionInput,
   ServerToClientEvents,
 } from '@quiz/shared'
 import { useGame } from './store'
@@ -29,7 +28,7 @@ socket.on('connect', () => {
     } else if (identity.playerId) {
       socket.emit(
         'room:join',
-        { roomCode: identity.roomCode, name: identity.name, playerId: identity.playerId },
+        { roomCode: identity.roomCode, name: identity.name, avatar: identity.avatar, playerId: identity.playerId },
         (r) => {
           if (r.ok) {
             useGame.getState().setIdentity({ role: r.isModerator ? 'moderator' : 'player' })
@@ -94,14 +93,15 @@ export async function syncClock(rounds = 5): Promise<void> {
 
 // ----- Actions ----------------------------------------------------------
 
-export function createRoom(name: string): Promise<CreateRoomResult> {
+export function createRoom(name: string, avatar: string): Promise<CreateRoomResult> {
   return new Promise((resolve) => {
-    socket.emit('room:create', { name }, (r) => {
+    socket.emit('room:create', { name, avatar }, (r) => {
       if (r.ok && r.roomCode && r.playerId) {
         useGame.getState().setIdentity({
           roomCode: r.roomCode,
           playerId: r.playerId,
           name,
+          avatar,
           role: 'moderator',
         })
       }
@@ -110,17 +110,18 @@ export function createRoom(name: string): Promise<CreateRoomResult> {
   })
 }
 
-export function joinRoom(roomCode: string, name: string): Promise<JoinRoomResult> {
+export function joinRoom(roomCode: string, name: string, avatar: string): Promise<JoinRoomResult> {
   const code = roomCode.toUpperCase().trim()
   const existing = useGame.getState().identity
   const playerId = existing.roomCode === code ? existing.playerId ?? undefined : undefined
   return new Promise((resolve) => {
-    socket.emit('room:join', { roomCode: code, name, playerId }, (r) => {
+    socket.emit('room:join', { roomCode: code, name, avatar, playerId }, (r) => {
       if (r.ok && r.playerId) {
         useGame.getState().setIdentity({
           roomCode: code,
           playerId: r.playerId,
           name,
+          avatar,
           role: r.isModerator ? 'moderator' : 'player',
         })
       }
@@ -159,9 +160,24 @@ export const mod = {
   reveal: () => socket.emit('mod:revealSolution'),
   next: () => socket.emit('mod:nextRound'),
   skip: () => socket.emit('mod:skipQuestion'),
-  setLiveQuestion: (q: LiveQuestionInput) => socket.emit('mod:setLiveQuestion', q),
   updateSettings: (s: Partial<GameSettings>) => socket.emit('mod:updateSettings', s),
   resetScores: () => socket.emit('mod:resetScores'),
   kick: (playerId: string) => socket.emit('mod:kick', { playerId }),
   endGame: () => socket.emit('mod:endGame'),
+  grantPowerUp: (playerId: string, type: 'doublePoints' | 'shield' | 'steal') =>
+    socket.emit('mod:grantPowerUp', { playerId, type }),
+  startBonusRound: () => socket.emit('mod:startBonusRound'),
+  endBonusRound: () => socket.emit('mod:endBonusRound'),
+  createCategory: (name: string) =>
+    new Promise((resolve) => socket.emit('mod:createCategory', { name }, resolve)),
+  addQuestion: (p: {
+    categoryId: string
+    category: string
+    points: number
+    text: string
+    answer: string
+    ttsText?: string
+  }) => new Promise((resolve) => socket.emit('mod:addQuestion', p, resolve)),
+  deleteCategory: (categoryId: string) => socket.emit('mod:deleteCategory', { categoryId }),
+  deleteQuestion: (questionId: string) => socket.emit('mod:deleteQuestion', { questionId }),
 }

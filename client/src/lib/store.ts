@@ -7,7 +7,16 @@ export interface Identity {
   roomCode: string | null
   playerId: string | null
   name: string
+  avatar: string
   role: Role | null
+}
+
+export interface PlayerStats {
+  gamesPlayed: number
+  totalScore: number
+  bestScore: number
+  correctAnswers: number
+  wrongAnswers: number
 }
 
 interface GameStore {
@@ -19,6 +28,7 @@ interface GameStore {
   cue: { type: CueType; at: number } | null
   error: string | null
   modAnswer: { questionId: string; answer: string } | null
+  stats: PlayerStats
   setConnected: (v: boolean) => void
   setState: (s: PublicGameState) => void
   setIdentity: (i: Partial<Identity>) => void
@@ -27,12 +37,32 @@ interface GameStore {
   setCue: (type: CueType) => void
   setError: (e: string | null) => void
   setModAnswer: (a: { questionId: string; answer: string } | null) => void
+  updateStats: (delta: { score?: number; correct?: boolean }) => void
   leave: () => void
 }
 
 const STORAGE_KEY = 'qve:identity'
+const STATS_KEY = 'qve:stats'
 
-const EMPTY: Identity = { roomCode: null, playerId: null, name: '', role: null }
+const EMPTY: Identity = { roomCode: null, playerId: null, name: '', avatar: '🎮', role: null }
+
+const EMPTY_STATS: PlayerStats = {
+  gamesPlayed: 0,
+  totalScore: 0,
+  bestScore: 0,
+  correctAnswers: 0,
+  wrongAnswers: 0,
+}
+
+function loadStats(): PlayerStats {
+  try {
+    const raw = localStorage.getItem(STATS_KEY)
+    if (raw) return { ...EMPTY_STATS, ...JSON.parse(raw) }
+  } catch {
+    /* noop */
+  }
+  return { ...EMPTY_STATS }
+}
 
 function loadIdentity(): Identity {
   try {
@@ -61,6 +91,7 @@ export const useGame = create<GameStore>((set, get) => ({
   cue: null,
   error: null,
   modAnswer: null,
+  stats: loadStats(),
   setConnected: (v) => set({ connected: v }),
   setState: (s) => set({ state: s }),
   setIdentity: (i) => {
@@ -73,6 +104,21 @@ export const useGame = create<GameStore>((set, get) => ({
   setCue: (type) => set({ cue: { type, at: Date.now() } }),
   setError: (e) => set({ error: e }),
   setModAnswer: (a) => set({ modAnswer: a }),
+  updateStats: (delta) => {
+    const stats = get().stats
+    const updated = { ...stats }
+    if (delta.score !== undefined) {
+      updated.totalScore += delta.score
+      if (delta.score > updated.bestScore) updated.bestScore = delta.score
+    }
+    if (delta.correct !== undefined) {
+      if (delta.correct) updated.correctAnswers++
+      else updated.wrongAnswers++
+    }
+    updated.gamesPlayed++
+    localStorage.setItem(STATS_KEY, JSON.stringify(updated))
+    set({ stats: updated })
+  },
   leave: () => {
     persist({ ...EMPTY })
     set({ identity: { ...EMPTY }, state: null, myVote: null, modAnswer: null })

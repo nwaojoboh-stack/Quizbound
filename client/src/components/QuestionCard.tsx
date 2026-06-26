@@ -1,6 +1,5 @@
 import type { CurrentQuestionPublic } from '@quiz/shared'
 import { motion } from 'framer-motion'
-import { DifficultyBadge } from './DifficultyBadge'
 import { cn } from '@/lib/cn'
 
 export function QuestionCard({
@@ -34,7 +33,9 @@ export function QuestionCard({
               liest vor
             </span>
           )}
-          <DifficultyBadge difficulty={q.difficulty} points={q.points} />
+          <div className="rounded-lg bg-brand-500/20 px-3 py-1 text-sm font-bold text-brand-300">
+            +{q.points}
+          </div>
         </div>
       </div>
       <p className={textCls}>{q.text}</p>

@@ -1,17 +1,15 @@
 import { customAlphabet, nanoid } from 'nanoid'
 import {
   DEFAULT_SETTINGS,
-  DIFFICULTY_ORDER,
   PLAYER_COLORS,
-  SCORING,
   type AnswerStatus,
   type BuzzEntry,
   type CategoryOption,
   type CueType,
   type CurrentQuestionPublic,
-  type Difficulty,
+  type CustomCategory,
+  type CustomQuestion,
   type GameSettings,
-  type LiveQuestionInput,
   type Phase,
   type Player,
   type PublicGameState,
@@ -19,7 +17,6 @@ import {
   type RoundResult,
   type TimerState,
 } from '@quiz/shared'
-import { SEED_QUESTIONS } from './questions.js'
 
 // Sammelfenster nach dem ersten Buzz: gleicht Netzwerk-Jitter aus, damit der
 // frueheste Tastendruck (Client-Zeitstempel) gewinnt - nicht das schnellste Netz.
@@ -66,7 +63,6 @@ export class GameEngine {
   private round = 0
   hostId: string | null = null
 
-  private bank: Question[]
   private usedQuestionIds = new Set<string>()
 
   private categoryOptions: CategoryOption[] = []
@@ -91,7 +87,6 @@ export class GameEngine {
   constructor(emitter: RoomEmitter, code?: string) {
     this.emitter = emitter
     this.roomCode = code ?? genRoomCode()
-    this.bank = SEED_QUESTIONS.map((q) => ({ ...q }))
   }
 
   // ----- Player management -----------------------------------------------
@@ -112,7 +107,7 @@ export class GameEngine {
     return this.players.get(playerId)?.isModerator ?? false
   }
 
-  addPlayer(name: string, asModerator: boolean): Player {
+  addPlayer(name: string, avatar: string, asModerator: boolean): Player {
     const id = nanoid()
     const usedColors = new Set([...this.players.values()].map((p) => p.color))
     const color =
@@ -125,6 +120,9 @@ export class GameEngine {
       connected: true,
       isModerator: asModerator,
       color,
+      avatar: avatar || '🎮',
+      jokers: 2,
+      powerUps: [],
       joinedAt: Date.now(),
     }
     this.players.set(id, player)
@@ -160,22 +158,22 @@ export class GameEngine {
   }
 
   private bankCategories(): string[] {
-    return [...new Set(this.bank.map((q) => q.category))]
+    return this.settings.customCategories.map((c) => c.name)
   }
 
   private availableCells(): CategoryOption[] {
     const cells: CategoryOption[] = []
+    const usedQuestions = this.settings.customQuestions.filter((q) => !this.usedQuestionIds.has(q.id))
+    const uniquePointValues = [...new Set(usedQuestions.map((q) => q.points))]
+
     for (const cat of this.bankCategories()) {
-      for (const diff of DIFFICULTY_ORDER) {
-        const hasUnused = this.bank.some(
-          (q) => q.category === cat && q.difficulty === diff && !this.usedQuestionIds.has(q.id),
-        )
-        if (hasUnused) {
+      for (const points of uniquePointValues) {
+        const hasQuestion = usedQuestions.some((q) => q.category === cat && q.points === points)
+        if (hasQuestion) {
           cells.push({
             id: nanoid(8),
             category: cat,
-            difficulty: diff,
-            points: SCORING[diff].points,
+            points,
           })
         }
       }
@@ -227,8 +225,11 @@ export class GameEngine {
     this.resetBuzzState()
     const cells = shuffle(this.availableCells())
     if (cells.length === 0) {
-      // Bank erschoepft -> zuruecksetzen, damit weitergespielt werden kann
-      this.usedQuestionIds.clear()
+      // Keine benutzerdefinierten Fragen vorhanden -> zurueck in Lobby
+      this.phase = 'lobby'
+      this.round = 0
+      this.emit()
+      return
     }
     this.categoryOptions = shuffle(this.availableCells()).slice(0, this.settings.optionsPerRound)
     this.emitter.cue('start')
@@ -279,7 +280,7 @@ export class GameEngine {
     }
     if (!winner) return
     this.voteResolved = true
-    const question = this.drawQuestion(winner.category, winner.difficulty)
+    const question = this.drawQuestion(winner.category, winner.points)
     if (!question) {
       // Sollte dank Reset nicht passieren; bleibe in der Wahl
       this.voteResolved = false
@@ -289,12 +290,21 @@ export class GameEngine {
     this.beginDrop(question, winner.points)
   }
 
-  private drawQuestion(category: string, difficulty: Difficulty): Question | null {
+  private drawQuestion(category: string, points: number): Question | null {
+    const customQuestions: Question[] = this.settings.customQuestions.map((q) => ({
+      id: q.id,
+      category: q.category,
+      points: q.points,
+      text: q.text,
+      answer: q.answer,
+      ttsText: q.ttsText,
+    }))
+
     const tiers: Question[][] = [
-      this.bank.filter((q) => q.category === category && q.difficulty === difficulty && !this.usedQuestionIds.has(q.id)),
-      this.bank.filter((q) => q.category === category && !this.usedQuestionIds.has(q.id)),
-      this.bank.filter((q) => !this.usedQuestionIds.has(q.id)),
-      this.bank,
+      customQuestions.filter((q) => q.category === category && q.points === points && !this.usedQuestionIds.has(q.id)),
+      customQuestions.filter((q) => q.category === category && !this.usedQuestionIds.has(q.id)),
+      customQuestions.filter((q) => !this.usedQuestionIds.has(q.id)),
+      customQuestions,
     ]
     for (const tier of tiers) {
       if (tier.length > 0) return tier[Math.floor(Math.random() * tier.length)]
@@ -321,6 +331,13 @@ export class GameEngine {
         text: question.ttsText || question.text,
         rate: this.settings.ttsRate,
         lang: this.settings.language,
+      })
+    }
+    // Start round timer if enabled
+    if (this.settings.roundTimeLimit > 0) {
+      this.startTimer(this.settings.roundTimeLimit, 'Rundenzeit', () => {
+        // Round time expired - skip to next round
+        this.skipQuestion()
       })
     }
     this.emit()
@@ -384,6 +401,54 @@ export class GameEngine {
     })
   }
 
+  // ----- Jokers -----------------------------------------------------------
+
+  useJoker(playerId: string, type: 'fifty' | 'audience'): void {
+    const player = this.players.get(playerId)
+    if (!player || player.isModerator || player.jokers <= 0) return
+    if (this.phase !== 'drop' && this.phase !== 'hotseat') return
+    if (this.activePlayerId && this.activePlayerId !== playerId) return
+
+    player.jokers--
+    this.emit()
+    // Joker effects would be implemented here (e.g., 50/50 removes wrong answers, audience shows poll)
+    // For now, we just decrement the joker count
+  }
+
+  // ----- Power-Ups ---------------------------------------------------------
+
+  grantPowerUp(playerId: string, type: 'doublePoints' | 'shield' | 'steal'): void {
+    const player = this.players.get(playerId)
+    if (!player || player.isModerator) return
+    player.powerUps.push({ type, id: nanoid() })
+    this.emit()
+  }
+
+  usePowerUp(playerId: string, powerUpId: string): void {
+    const player = this.players.get(playerId)
+    if (!player || player.isModerator) return
+    const powerUpIndex = player.powerUps.findIndex((p) => p.id === powerUpId)
+    if (powerUpIndex === -1) return
+
+    const powerUp = player.powerUps[powerUpIndex]
+    player.powerUps.splice(powerUpIndex, 1)
+
+    // Apply power-up effect
+    switch (powerUp.type) {
+      case 'doublePoints':
+        // Next correct answer gives double points - implemented in judge
+        break
+      case 'shield':
+        // Next wrong answer has no penalty - implemented in judge
+        break
+      case 'steal':
+        // Can steal points from another player - implemented separately
+        break
+    }
+
+    this.emit()
+  }
+
   // ----- Phase 3/4: judging & steal --------------------------------------
 
   judge(correct: boolean, fromTimer = false): void {
@@ -408,9 +473,9 @@ export class GameEngine {
       return
     }
 
-    // Falsch -> Strafe (Anti-Glueck) und Steal an den naechsten in der Queue
+    // Falsch -> Strafe (50% der Punkte) und Steal an den naechsten in der Queue
     active.status = 'wrong'
-    const penalty = SCORING[this.currentQuestion?.difficulty ?? 'medium'].penalty
+    const penalty = Math.floor(this.currentPoints * 0.5)
     player.score -= penalty
     this.emitter.cue(fromTimer ? 'wrong' : 'wrong')
 
@@ -462,6 +527,24 @@ export class GameEngine {
     this.startVote()
   }
 
+  // ----- Bonus Round -------------------------------------------------------
+
+  startBonusRound(): void {
+    if (this.phase !== 'reveal') return
+    this.phase = 'bonus'
+    this.clearTimer()
+    this.buzzingOpen = true
+    this.resetBuzzState()
+    // Bonus round could have special questions or higher point values
+    // For now, we'll just transition to a bonus state
+    this.emit()
+  }
+
+  endBonusRound(): void {
+    if (this.phase !== 'bonus') return
+    this.startVote()
+  }
+
   skipQuestion(): void {
     if (this.currentQuestion) this.usedQuestionIds.add(this.currentQuestion.id)
     this.startVote()
@@ -472,22 +555,6 @@ export class GameEngine {
   forceCategory(optionId: string): void {
     if (this.phase !== 'category') return
     this.resolveVote(optionId)
-  }
-
-  setLiveQuestion(input: LiveQuestionInput): void {
-    const difficulty = input.difficulty
-    const question: Question = {
-      id: 'live-' + nanoid(6),
-      category: input.category.trim() || 'Live',
-      difficulty,
-      text: input.text.trim(),
-      answer: input.answer.trim(),
-      ttsText: input.ttsText?.trim() || undefined,
-    }
-    if (!question.text || !question.answer) return
-    this.bank.push(question)
-    this.lastResult = null
-    this.beginDrop(question, SCORING[difficulty].points)
   }
 
   updateSettings(partial: Partial<GameSettings>): void {
@@ -518,6 +585,53 @@ export class GameEngine {
     this.emit()
   }
 
+  // ----- Custom Categories & Questions --------------------------------------
+
+  createCategory(name: string): CustomCategory {
+    const category: CustomCategory = {
+      id: nanoid(),
+      name: name.trim().slice(0, 32) || 'Neue Kategorie',
+      createdAt: Date.now(),
+    }
+    this.settings.customCategories.push(category)
+    this.emit()
+    return category
+  }
+
+  addQuestion(
+    categoryId: string,
+    category: string,
+    points: number,
+    text: string,
+    answer: string,
+    ttsText?: string,
+  ): CustomQuestion {
+    const question: CustomQuestion = {
+      id: nanoid(),
+      categoryId,
+      category: category.trim().slice(0, 32),
+      points,
+      text: text.trim().slice(0, 256),
+      answer: answer.trim().slice(0, 128),
+      ttsText: ttsText?.trim().slice(0, 256),
+      createdAt: Date.now(),
+    }
+    this.settings.customQuestions.push(question)
+    this.emit()
+    return question
+  }
+
+  deleteCategory(categoryId: string): void {
+    this.settings.customCategories = this.settings.customCategories.filter((c) => c.id !== categoryId)
+    this.settings.customQuestions = this.settings.customQuestions.filter((q) => q.categoryId !== categoryId)
+    this.emit()
+  }
+
+  deleteQuestion(questionId: string): void {
+    this.settings.customQuestions = this.settings.customQuestions.filter((q) => q.id !== questionId)
+    this.emit()
+  }
+
   // ----- State broadcast --------------------------------------------------
 
   getPublicState(): PublicGameState {
@@ -540,8 +654,7 @@ export class GameEngine {
       currentQuestion = {
         id: this.currentQuestion.id,
         category: this.currentQuestion.category,
-        difficulty: this.currentQuestion.difficulty,
-        points: this.currentPoints || SCORING[this.currentQuestion.difficulty].points,
+        points: this.currentPoints || this.currentQuestion.points,
         text: this.currentQuestion.text,
         answer: this.answerRevealed ? this.currentQuestion.answer : null,
       }

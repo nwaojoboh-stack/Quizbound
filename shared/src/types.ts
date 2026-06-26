@@ -1,6 +1,4 @@
-import type { Difficulty } from './scoring'
-
-export type Phase = 'lobby' | 'category' | 'drop' | 'hotseat' | 'reveal' | 'gameover'
+export type Phase = 'lobby' | 'category' | 'drop' | 'hotseat' | 'reveal' | 'bonus' | 'gameover'
 
 export interface Player {
   id: string
@@ -9,31 +7,49 @@ export interface Player {
   connected: boolean
   isModerator: boolean
   color: string
+  avatar?: string
+  jokers: number
+  powerUps: PowerUp[]
   joinedAt: number
+}
+
+export type PowerUpType = 'doublePoints' | 'shield' | 'steal'
+
+export interface PowerUp {
+  type: PowerUpType
+  id: string
 }
 
 export interface CategoryOption {
   id: string
   category: string
-  difficulty: Difficulty
   points: number
 }
 
 export interface Question {
   id: string
   category: string
-  difficulty: Difficulty
+  points: number
   text: string
   answer: string
   ttsText?: string
 }
 
-export interface LiveQuestionInput {
+export interface CustomCategory {
+  id: string
+  name: string
+  createdAt: number
+}
+
+export interface CustomQuestion {
+  id: string
+  categoryId: string
   category: string
-  difficulty: Difficulty
+  points: number
   text: string
   answer: string
   ttsText?: string
+  createdAt: number
 }
 
 export type AnswerStatus = 'pending' | 'wrong' | 'correct'
@@ -65,16 +81,18 @@ export interface RoundResult {
 
 export interface GameSettings {
   hotseatSeconds: number
+  roundTimeLimit: number
   ttsEnabled: boolean
   ttsRate: number
   language: string
   optionsPerRound: number
+  customCategories: CustomCategory[]
+  customQuestions: CustomQuestion[]
 }
 
 export interface CurrentQuestionPublic {
   id: string
   category: string
-  difficulty: Difficulty
   points: number
   text: string
   answer: string | null
@@ -103,21 +121,24 @@ export interface PublicGameState {
 
 export const DEFAULT_SETTINGS: GameSettings = {
   hotseatSeconds: 12,
+  roundTimeLimit: 0,
   ttsEnabled: true,
   ttsRate: 1,
   language: 'de-DE',
   optionsPerRound: 5,
+  customCategories: [],
+  customQuestions: [],
 }
 
 export const PLAYER_COLORS = [
-  '#f87171',
-  '#fb923c',
-  '#fbbf24',
-  '#a3e635',
-  '#34d399',
-  '#22d3ee',
-  '#60a5fa',
-  '#a78bfa',
-  '#f472b6',
-  '#e879f9',
+  '#a78bfa', // brand-400
+  '#8b5cf6', // brand-500
+  '#7c3aed', // brand-600
+  '#22d3ee', // accent-400
+  '#06b6d4', // accent-500
+  '#f87171', // danger-400
+  '#fbbf24', // warning-400
+  '#4ade80', // success-400
+  '#fb923c', // orange
+  '#f472b6', // pink
 ]

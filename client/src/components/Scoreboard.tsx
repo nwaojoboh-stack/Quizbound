@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { Player } from '@quiz/shared'
-import { Crown, X } from 'lucide-react'
+import { Crown, X, TrendingUp, TrendingDown } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 export function Scoreboard({
@@ -16,7 +16,7 @@ export function Scoreboard({
 }) {
   const contestants = players.filter((p) => !p.isModerator)
   if (contestants.length === 0) {
-    return <div className="rounded-xl border border-dashed border-white/10 px-3 py-6 text-center text-sm text-white/40">Noch keine Mitspieler.</div>
+    return <div className="rounded-xl border border-dashed border-white/10 px-3 py-6 text-center text-sm text-white/60">Noch keine Mitspieler.</div>
   }
   return (
     <div className="space-y-2">
@@ -38,12 +38,14 @@ export function Scoreboard({
           <span
             className={cn(
               'w-6 text-center font-mono text-lg font-black',
-              i === 0 ? 'text-yellow-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-white/40',
+              i === 0 ? 'text-yellow-400' : i === 1 ? 'text-slate-300' : i === 2 ? 'text-amber-600' : 'text-white/60',
             )}
           >
             {i + 1}
           </span>
-          <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: p.color }} />
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-2xl">
+            {p.avatar || '🎮'}
+          </span>
           <span className="flex-1 truncate font-semibold">
             {p.name}
             {i === 0 && contestants.length > 1 && (
@@ -51,7 +53,15 @@ export function Scoreboard({
             )}
           </span>
           {!p.connected && <span className="text-[10px] uppercase text-white/30">offline</span>}
-          <span className="font-mono text-lg font-black tabular-nums">{p.score}</span>
+          <motion.span
+            key={p.score}
+            initial={{ scale: 1.5, color: p.score > 0 ? '#4ade80' : '#f87171' }}
+            animate={{ scale: 1, color: 'inherit' }}
+            transition={{ duration: 0.3 }}
+            className="font-mono text-lg font-black tabular-nums"
+          >
+            {p.score}
+          </motion.span>
           {onKick && p.id !== meId && (
             <button
               onClick={() => onKick(p.id)}

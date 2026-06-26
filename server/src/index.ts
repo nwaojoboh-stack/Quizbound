@@ -46,9 +46,9 @@ io.on('connection', (socket) => {
     cb?.({ serverTime: Date.now() })
   })
 
-  socket.on('room:create', ({ name }, cb) => {
+  socket.on('room:create', ({ name, avatar }, cb) => {
     const e = rooms.createRoom()
-    const player = e.addPlayer(name, true)
+    const player = e.addPlayer(name, avatar, true)
     socket.data.roomCode = e.roomCode
     socket.data.playerId = player.id
     socket.join(rooms.key(e.roomCode))
@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
     rooms.broadcast(e)
   })
 
-  socket.on('room:join', ({ roomCode, name, playerId }, cb) => {
+  socket.on('room:join', ({ roomCode, name, avatar, playerId }, cb) => {
     const e = rooms.getRoom(roomCode)
     if (!e) {
       cb?.({ ok: false, error: 'Raum nicht gefunden.' })
@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
       e.reconnectPlayer(pid)
       isModerator = e.isModerator(pid)
     } else {
-      const player = e.addPlayer(name, false)
+      const player = e.addPlayer(name, avatar, false)
       pid = player.id
     }
     socket.data.roomCode = e.roomCode
@@ -113,6 +113,18 @@ io.on('connection', (socket) => {
     if (e && id) e.buzz(id, normalizedMs, clientTime)
   })
 
+  socket.on('useJoker', ({ type }) => {
+    const e = engine()
+    const id = me()
+    if (e && id) e.useJoker(id, type)
+  })
+
+  socket.on('usePowerUp', ({ powerUpId }) => {
+    const e = engine()
+    const id = me()
+    if (e && id) e.usePowerUp(id, powerUpId)
+  })
+
   // ----- Moderator-Aktionen (God-Mode) -----
   socket.on('mod:startVote', () => {
     if (isMod()) engine()!.startVote()
@@ -131,9 +143,6 @@ io.on('connection', (socket) => {
   })
   socket.on('mod:nextRound', () => {
     if (isMod()) engine()!.nextRound()
-  })
-  socket.on('mod:setLiveQuestion', (input) => {
-    if (isMod()) engine()!.setLiveQuestion(input)
   })
   socket.on('mod:updateSettings', (partial) => {
     if (isMod()) engine()!.updateSettings(partial)
@@ -161,6 +170,39 @@ io.on('connection', (socket) => {
   })
   socket.on('mod:endGame', () => {
     if (isMod()) engine()!.endGame()
+  })
+  socket.on('mod:grantPowerUp', ({ playerId, type }) => {
+    if (isMod()) engine()!.grantPowerUp(playerId, type)
+  })
+  socket.on('mod:startBonusRound', () => {
+    if (isMod()) engine()!.startBonusRound()
+  })
+  socket.on('mod:endBonusRound', () => {
+    if (isMod()) engine()!.endBonusRound()
+  })
+  socket.on('mod:createCategory', ({ name }, cb) => {
+    if (isMod()) {
+      const e = engine()!
+      const category = e.createCategory(name)
+      cb?.({ ok: true, category })
+    } else {
+      cb?.({ ok: false, error: 'Nur Moderator' })
+    }
+  })
+  socket.on('mod:addQuestion', ({ categoryId, category, points, text, answer, ttsText }, cb) => {
+    if (isMod()) {
+      const e = engine()!
+      const question = e.addQuestion(categoryId, category, points, text, answer, ttsText)
+      cb?.({ ok: true, question })
+    } else {
+      cb?.({ ok: false, error: 'Nur Moderator' })
+    }
+  })
+  socket.on('mod:deleteCategory', ({ categoryId }) => {
+    if (isMod()) engine()!.deleteCategory(categoryId)
+  })
+  socket.on('mod:deleteQuestion', ({ questionId }) => {
+    if (isMod()) engine()!.deleteQuestion(questionId)
   })
 
   socket.on('disconnect', () => {
