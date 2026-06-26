@@ -7,6 +7,7 @@ import {
   Copy,
   Download,
   Eye,
+  Mic,
   Play,
   Plus,
   Power,
@@ -114,83 +115,93 @@ export default function Moderator() {
   }
 
   return (
-    <div className="mx-auto min-h-dvh max-w-7xl px-4 pb-8">
-      <header className="sticky top-0 z-20 -mx-4 mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/5 bg-bg/80 px-4 py-4 backdrop-blur-xl">
-        <div className="flex items-center gap-4">
-          <Logo />
-          <span className="rounded-lg bg-brand-600/20 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-brand-300">
-            Moderator
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={copyLink}
-            className="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 font-mono text-lg font-black tracking-[0.3em] transition hover:bg-white/10"
-            title="Einladungslink kopieren"
-          >
-            {state.roomCode}
-            <Copy className="h-4 w-4 text-white/60" />
-          </button>
-          <Button variant="ghost" size="sm" onClick={() => nav(`/present/${state.roomCode}`)}>
-            <Tv className="h-4 w-4" /> Beamer
-          </Button>
-          <ConnectionDot className="hidden md:inline-flex" />
-          <Button variant="ghost" size="sm" onClick={onEnd} title="Verlassen">
-            <Power className="h-4 w-4" />
-          </Button>
+    <div className="flex min-h-dvh flex-col bg-gradient-to-b from-bg to-bg-soft">
+      {/* Top Bar */}
+      <header className="sticky top-0 z-30 border-b border-white/5 bg-bg/90 backdrop-blur-xl">
+        <div className="mx-auto max-w-7xl px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Logo />
+              <div className="hidden items-center gap-2 rounded-full bg-brand-600/20 px-4 py-2 md:flex">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-300">Moderator</span>
+                <span className="h-4 w-px bg-white/10" />
+                <span className="text-xs text-white/60">Runde {state.round}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={copyLink}
+                className="hidden items-center gap-2 rounded-xl bg-white/5 px-4 py-2 font-mono text-sm font-black tracking-[0.2em] transition hover:bg-white/10 sm:flex"
+                title="Einladungslink kopieren"
+              >
+                {state.roomCode}
+                <Copy className="h-4 w-4 text-white/60" />
+              </button>
+              <Button variant="ghost" size="sm" onClick={() => nav(`/present/${state.roomCode}`)}>
+                <Tv className="h-4 w-4" /> <span className="hidden sm:inline">Beamer</span>
+              </Button>
+              <ConnectionDot className="hidden md:inline-flex" />
+              <Button variant="ghost" size="sm" onClick={onEnd} title="Verlassen">
+                <Power className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr_1fr]">
-        {/* ---------- Linke Spalte: Steuerung ---------- */}
-        <div className="space-y-5">
-          <div className="card p-5">
-            <div className="mb-4 flex items-center justify-between">
+      {/* Main Content */}
+      <div className="mx-auto flex max-w-7xl flex-1 gap-6 px-6 py-6">
+        {/* Left Sidebar - Controls */}
+        <aside className="hidden w-80 shrink-0 space-y-4 lg:block">
+          <div className="card border-l-4 border-l-brand-500 p-5">
+            <div className="mb-4">
               <h3 className="text-sm font-bold uppercase tracking-wider text-white/60">Steuerung</h3>
-              <span className="text-xs text-white/60">Runde {state.round}</span>
+              <p className="mt-1 text-xs text-white/40">Runde {state.round}</p>
             </div>
             <PhaseControls state={state} />
           </div>
 
-          {/* Benutzerdefinierte Kategorien & Fragen */}
           <div className="card overflow-hidden">
             <button
               onClick={() => setShowCustom((v) => !v)}
-              className="flex w-full items-center justify-between p-4 text-left"
+              className="flex w-full items-center justify-between p-4 text-left transition hover:bg-white/5"
             >
-              <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white/60">
-                <Plus className="h-4 w-4" /> Eigene Kategorien
+              <span className="flex items-center gap-2 text-sm font-semibold text-white/80">
+                <Plus className="h-4 w-4 text-brand-400" /> Kategorien
               </span>
-              <ChevronDown className={cn('h-4 w-4 transition', showCustom && 'rotate-180')} />
+              <ChevronDown className={cn('h-4 w-4 text-white/40 transition', showCustom && 'rotate-180')} />
             </button>
             {showCustom && <CustomCategoriesPanel categories={state.settings.customCategories} questions={state.settings.customQuestions} />}
           </div>
 
-          {/* Einstellungen */}
           <div className="card overflow-hidden">
             <button
               onClick={() => setShowSettings((v) => !v)}
-              className="flex w-full items-center justify-between p-4 text-left"
+              className="flex w-full items-center justify-between p-4 text-left transition hover:bg-white/5"
             >
-              <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white/60">
+              <span className="flex items-center gap-2 text-sm font-semibold text-white/80">
                 Einstellungen
               </span>
-              <ChevronDown className={cn('h-4 w-4 transition', showSettings && 'rotate-180')} />
+              <ChevronDown className={cn('h-4 w-4 text-white/40 transition', showSettings && 'rotate-180')} />
             </button>
             {showSettings && <SettingsPanel />}
           </div>
-        </div>
+        </aside>
 
-        {/* ---------- Mitte: Bühne ---------- */}
-        <div className="space-y-5">
+        {/* Main Stage */}
+        <main className="flex-1 space-y-4">
           {state.phase === 'lobby' && (
-            <div className="card flex flex-col items-center p-8 text-center">
-              <h2 className="text-2xl font-bold">Spieler beitreten lassen</h2>
-              <p className="mt-2 text-sm text-white/60">QR scannen oder Code teilen</p>
-              <div className="mt-6 rounded-2xl bg-white p-4">
-                <QRCodeSVG value={joinLink} size={200} />
+            <div className="card flex flex-col items-center p-10 text-center">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-brand-600/20 px-4 py-2">
+                <Users className="h-4 w-4 text-brand-300" />
+                <span className="text-sm font-semibold text-brand-200">Lobby</span>
               </div>
-              <div className="mt-5 font-mono text-4xl font-black tracking-[0.4em]">{state.roomCode}</div>
+              <h2 className="text-3xl font-black">Spieler beitreten lassen</h2>
+              <p className="mt-2 text-white/60">QR scannen oder Code teilen</p>
+              <div className="mt-8 rounded-2xl bg-white p-6 shadow-2xl">
+                <QRCodeSVG value={joinLink} size={220} />
+              </div>
+              <div className="mt-6 font-mono text-5xl font-black tracking-[0.4em]">{state.roomCode}</div>
               <p className="mt-4 flex items-center gap-2 text-sm text-white/60">
                 <Users className="h-4 w-4" /> {contestantCount} Mitspieler bereit
               </p>
@@ -199,16 +210,19 @@ export default function Moderator() {
 
           {state.phase === 'category' && (
             <div className="card p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold">Kategorie-Wahl</h2>
-                <span className="text-sm text-white/60">
-                  {votedCount}/{contestantCount} abgestimmt
-                </span>
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">Kategorie-Wahl</h2>
+                  <p className="mt-1 text-sm text-white/60">
+                    {votedCount}/{contestantCount} haben abgestimmt
+                  </p>
+                </div>
+                <div className="hidden sm:block">
+                  <Button size="lg" onClick={() => mod.resolveVote()}>
+                    <Check className="h-5 w-5" /> Mehrheit
+                  </Button>
+                </div>
               </div>
-              <p className="mb-4 text-sm text-white/60">
-                Tippe eine Karte, um sie zu <span className="font-semibold text-brand-300">erzwingen</span>, oder
-                löse per Mehrheit auf (Leertaste).
-              </p>
               <CategoryGrid
                 options={state.categoryOptions}
                 myVote={null}
@@ -220,56 +234,66 @@ export default function Moderator() {
 
           {(state.phase === 'drop' || state.phase === 'hotseat' || state.phase === 'reveal') &&
             state.currentQuestion && (
-              <div className="card p-6">
-                <div className="mb-4 flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold uppercase tracking-wider text-white/60">
-                    {state.currentQuestion.category}
-                  </span>
-                  <div className="rounded-lg bg-brand-500/20 px-3 py-1 text-sm font-bold text-brand-300">
-                    +{state.currentQuestion.points}
-                  </div>
-                </div>
-                <p className="text-2xl font-bold leading-snug">{state.currentQuestion.text}</p>
-                {answerVisible && (
-                  <div className="mt-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
-                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400/80">
-                      <Eye className="h-3.5 w-3.5" /> Lösung (nur für dich)
+              <div className="card p-8">
+                <div className="mb-6 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="rounded-lg bg-white/5 px-3 py-1.5 text-sm font-semibold uppercase tracking-wider text-white/70">
+                      {state.currentQuestion.category}
+                    </span>
+                    <div className="rounded-lg bg-brand-500/20 px-3 py-1.5 text-sm font-bold text-brand-300">
+                      +{state.currentQuestion.points}
                     </div>
-                    <div className="text-xl font-bold text-emerald-300">{answerVisible}</div>
                   </div>
-                )}
-                {state.phase === 'hotseat' && (
-                  <div className="mt-6 flex items-center gap-4">
-                    <TimerRing timer={state.timer} size={110} stroke={8} />
-                    <div>
-                      <div className="text-xs uppercase text-white/60">Am Zug</div>
-                      <div className="text-2xl font-black" style={{ color: activePlayer?.color }}>
-                        {activePlayer?.name ?? '—'}
+                  {state.phase === 'hotseat' && (
+                    <div className="flex items-center gap-3 rounded-full bg-brand-600/30 px-4 py-2">
+                      <TimerRing timer={state.timer} size={48} stroke={4} />
+                      <div>
+                        <div className="text-xs uppercase text-white/60">Am Zug</div>
+                        <div className="text-lg font-black" style={{ color: activePlayer?.color }}>
+                          {activePlayer?.name ?? '—'}
+                        </div>
                       </div>
                     </div>
+                  )}
+                </div>
+                <p className="text-3xl font-bold leading-tight">{state.currentQuestion.text}</p>
+                {answerVisible && (
+                  <div className="mt-6 rounded-xl border-2 border-emerald-500/30 bg-emerald-500/10 p-5">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400/80">
+                      <Eye className="h-4 w-4" /> Lösung (nur für dich)
+                    </div>
+                    <div className="mt-2 text-2xl font-bold text-emerald-300">{answerVisible}</div>
                   </div>
                 )}
                 {state.phase === 'drop' && (
-                  <p className="mt-5 text-sm text-white/60">
-                    {state.ttsActive ? 'Bot liest vor …' : 'Bereit'} · Warte auf den ersten Buzz.
-                  </p>
+                  <div className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-rose-600/10 px-4 py-3">
+                    {state.ttsActive && <Mic className="h-5 w-5 animate-pulse text-rose-400" />}
+                    <span className="text-sm font-medium text-rose-300">
+                      {state.ttsActive ? 'Bot liest vor …' : 'Warte auf Buzz'}
+                    </span>
+                  </div>
                 )}
               </div>
             )}
 
           {state.phase === 'gameover' && (
-            <div className="card p-8 text-center">
-              <Trophy className="mx-auto mb-3 h-12 w-12 text-yellow-400" />
-              <h2 className="text-2xl font-black">Spiel beendet</h2>
+            <div className="card p-10 text-center">
+              <Trophy className="mx-auto mb-4 h-16 w-16 text-yellow-400" />
+              <h2 className="text-3xl font-black">Spiel beendet</h2>
               <p className="mt-2 text-white/60">Starte ein neues Spiel über die Steuerung.</p>
             </div>
           )}
-        </div>
+        </main>
 
-        {/* ---------- Rechte Spalte: Queue + Rangliste ---------- */}
-        <div className="space-y-5">
+        {/* Right Sidebar - Queue & Scoreboard */}
+        <aside className="hidden w-80 shrink-0 space-y-4 lg:block">
           <div className="card p-5">
-            <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-white/60">Buzzer-Queue</h3>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-white/60">Buzzer-Queue</h3>
+              <span className="rounded-full bg-brand-500/20 px-2 py-0.5 text-xs font-bold text-brand-300">
+                {state.buzzQueue.length}
+              </span>
+            </div>
             <BuzzQueue queue={state.buzzQueue} activePlayerId={state.activePlayerId} />
           </div>
           <div className="card p-5">
@@ -283,6 +307,31 @@ export default function Moderator() {
               </button>
             </div>
             <Scoreboard players={state.players} activePlayerId={state.activePlayerId} onKick={mod.kick} />
+          </div>
+        </aside>
+      </div>
+
+      {/* Mobile Controls */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-bg/95 backdrop-blur-xl lg:hidden">
+        <div className="mx-auto max-w-7xl px-4 py-3">
+          <div className="flex items-center justify-between gap-2">
+            <button
+              onClick={() => setShowCustom((v) => !v)}
+              className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-white/5 px-3 py-2 transition hover:bg-white/10"
+            >
+              <Plus className="h-5 w-5 text-brand-400" />
+              <span className="text-xs text-white/60">Kategorien</span>
+            </button>
+            <div className="flex-1">
+              <PhaseControls state={state} />
+            </div>
+            <button
+              onClick={() => setShowSettings((v) => !v)}
+              className="flex flex-1 flex-col items-center gap-1 rounded-xl bg-white/5 px-3 py-2 transition hover:bg-white/10"
+            >
+              Einstellungen
+              <span className="text-xs text-white/60">⚙️</span>
+            </button>
           </div>
         </div>
       </div>
@@ -298,19 +347,18 @@ function PhaseControls({ state }: { state: NonNullable<ReturnType<typeof useGame
 
   if (phase === 'lobby' || phase === 'gameover') {
     return (
-      <div className="space-y-2">
+      <div className="space-y-3">
         <Button
-          className="w-full"
+          className="w-full h-12 text-base"
           size="lg"
           onClick={() => mod.startVote()}
           disabled={!hasCustomContent}
         >
           <Play className="h-5 w-5" /> {phase === 'lobby' ? 'Spiel starten' : 'Neues Spiel'}
-          <Hotkey>Leertaste</Hotkey>
         </Button>
         {!hasCustomContent && (
           <p className="text-center text-xs text-white/60">
-            Erstelle zuerst Kategorien und Fragen unter "Eigene Kategorien"
+            Erstelle zuerst Kategorien und Fragen
           </p>
         )}
       </div>
@@ -318,56 +366,52 @@ function PhaseControls({ state }: { state: NonNullable<ReturnType<typeof useGame
   }
   if (phase === 'category') {
     return (
-      <Button className="w-full" size="lg" onClick={() => mod.resolveVote()}>
-        <Check className="h-5 w-5" /> Frage starten (Mehrheit)
-        <Hotkey>Leertaste</Hotkey>
+      <Button className="w-full h-12 text-base" size="lg" onClick={() => mod.resolveVote()}>
+        <Check className="h-5 w-5" /> Mehrheit auflösen
       </Button>
     )
   }
   if (phase === 'drop') {
     return (
       <div className="space-y-2">
-        <p className="text-sm text-white/50">Spieler buzzern. Falls niemand kann:</p>
-        <Button className="w-full" variant="secondary" onClick={() => mod.reveal()}>
+        <Button className="w-full h-12 text-base" variant="secondary" onClick={() => mod.reveal()}>
           <Eye className="h-5 w-5" /> Lösung zeigen
-          <Hotkey>Leertaste</Hotkey>
         </Button>
-        <Button className="w-full" variant="ghost" onClick={() => mod.skip()}>
-          <SkipForward className="h-4 w-4" /> Frage überspringen
+        <Button className="w-full h-10 text-sm" variant="ghost" onClick={() => mod.skip()}>
+          <SkipForward className="h-4 w-4" /> Überspringen
         </Button>
       </div>
     )
   }
   if (phase === 'hotseat') {
     return (
-      <div className="space-y-2">
-        <div className="grid grid-cols-2 gap-2">
-          <Button variant="success" size="lg" onClick={() => mod.judge(true)}>
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <Button variant="success" size="lg" className="h-14 text-lg" onClick={() => mod.judge(true)}>
             <Check className="h-6 w-6" /> Richtig
           </Button>
-          <Button variant="danger" size="lg" onClick={() => mod.judge(false)}>
+          <Button variant="danger" size="lg" className="h-14 text-lg" onClick={() => mod.judge(false)}>
             <X className="h-6 w-6" /> Falsch
           </Button>
         </div>
         <div className="flex items-center justify-center gap-4 text-xs text-white/60">
           <span className="flex items-center gap-1">
-            <kbd className="rounded bg-white/10 px-1.5 py-0.5">↑</kbd> Richtig
+            <kbd className="rounded bg-white/10 px-2 py-1 font-mono">↑</kbd> Richtig
           </span>
           <span className="flex items-center gap-1">
-            <kbd className="rounded bg-white/10 px-1.5 py-0.5">↓</kbd> Falsch
+            <kbd className="rounded bg-white/10 px-2 py-1 font-mono">↓</kbd> Falsch
           </span>
         </div>
-        <Button className="w-full" variant="ghost" onClick={() => mod.skip()}>
-          <SkipForward className="h-4 w-4" /> Frage überspringen
+        <Button className="w-full h-10 text-sm" variant="ghost" onClick={() => mod.skip()}>
+          <SkipForward className="h-4 w-4" /> Überspringen
         </Button>
       </div>
     )
   }
   // reveal
   return (
-    <Button className="w-full" size="lg" onClick={() => mod.next()}>
+    <Button className="w-full h-12 text-base" size="lg" onClick={() => mod.next()}>
       <Play className="h-5 w-5" /> Nächste Runde
-      <Hotkey>Leertaste</Hotkey>
     </Button>
   )
 }
