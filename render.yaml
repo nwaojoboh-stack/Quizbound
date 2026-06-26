@@ -1,0 +1,20 @@
+# Render.com Blueprint für QuizBuzz
+# Verbindet diese Datei mit einem neuen Render-Web-Service, und Render erstellt
+# automatisch das Deployment.
+
+services:
+  - type: web
+    name: quizbuzz
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    rootDir: .
+    buildCommand: npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+    healthCheckPath: /api/health
