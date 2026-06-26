@@ -68,37 +68,43 @@ export default function Player() {
   const buzzDisabled = !state.buzzingOpen || hasBuzzed || amActive
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-2xl flex-col px-4 pb-10 safe-b">
+    <div className="mx-auto flex min-h-dvh max-w-2xl flex-col px-4 pb-6 safe-b">
       <CueFlash />
-      <header className="sticky top-0 z-20 -mx-4 mb-4 flex items-center justify-between gap-3 border-b border-white/5 bg-bg/70 px-4 py-3 backdrop-blur-xl">
-        <Logo compact />
+      <header className="sticky top-0 z-20 -mx-4 mb-6 flex items-center justify-between gap-4 border-b border-white/5 bg-bg/80 px-4 py-4 backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <span className="rounded-lg bg-white/5 px-2 py-1 font-mono text-sm font-bold tracking-widest">
+          <Logo compact />
+          <span className="rounded-lg bg-white/5 px-3 py-1.5 font-mono text-base font-bold tracking-widest">
             {state.roomCode}
           </span>
+        </div>
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setShowStats(true)}
-className="text-white/60 transition hover:text-white"
+            className="rounded-lg bg-white/5 p-2 text-white/60 transition hover:bg-white/10 hover:text-white"
             title="Statistiken"
           >
             <Trophy className="h-5 w-5" />
           </button>
           <ConnectionDot className="hidden sm:inline-flex" />
-          <button onClick={onLeave} className="text-white/60 transition hover:text-white" title="Verlassen">
+          <button onClick={onLeave} className="rounded-lg bg-white/5 p-2 text-white/60 transition hover:bg-white/10 hover:text-white" title="Verlassen">
             <LogOut className="h-5 w-5" />
           </button>
         </div>
       </header>
 
       {me && (
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <span className="h-3.5 w-3.5 rounded-full" style={{ background: me.color }} />
-            <span className="font-semibold">{me.name}</span>
-            <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/60">Runde {state.round}</span>
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-2xl">
+              {me.avatar || '🎮'}
+            </span>
+            <div>
+              <div className="font-semibold text-lg">{me.name}</div>
+              <div className="text-xs text-white/60">Runde {state.round}</div>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 font-mono text-xl font-black tabular-nums">
-            <Trophy className="h-4 w-4 text-yellow-400" />
+          <div className="flex items-center gap-2 font-mono text-2xl font-black tabular-nums">
+            <Trophy className="h-5 w-5 text-yellow-400" />
             {me.score}
           </div>
         </div>
@@ -108,13 +114,13 @@ className="text-white/60 transition hover:text-white"
         <AnimatePresence mode="wait">
           {/* ----- Lobby ----- */}
           {state.phase === 'lobby' && (
-            <motion.div key="lobby" {...wrap} className="space-y-4">
-              <div className="card p-6 text-center">
-                <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-brand-600/20">
-                  <Users className="h-7 w-7 text-brand-300" />
+            <motion.div key="lobby" {...wrap} className="space-y-6">
+              <div className="card p-8 text-center">
+                <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-brand-600/20">
+                  <Users className="h-8 w-8 text-brand-300" />
                 </div>
-                <h2 className="text-xl font-bold">Warte auf den Start …</h2>
-                <p className="mt-1 text-white/50">Der Moderator startet das Spiel gleich. Mach dich bereit!</p>
+                <h2 className="text-2xl font-bold">Warte auf den Start …</h2>
+                <p className="mt-2 text-white/60">Der Moderator startet das Spiel gleich. Mach dich bereit!</p>
               </div>
               <SectionTitle icon={<Trophy className="h-4 w-4" />}>
                 Mitspieler ({contestantCount})
@@ -125,10 +131,10 @@ className="text-white/60 transition hover:text-white"
 
           {/* ----- Phase 1: Kategorie-Wahl ----- */}
           {state.phase === 'category' && (
-            <motion.div key="category" {...wrap} className="space-y-4">
+            <motion.div key="category" {...wrap} className="space-y-6">
               <div className="text-center">
-                <h2 className="text-2xl font-bold">Wähle deine Kategorie</h2>
-                <p className="mt-1 text-white/50">
+                <h2 className="text-3xl font-bold">Wähle deine Kategorie</h2>
+                <p className="mt-2 text-white/60">
                   Verdeckte Abstimmung · {votedCount}/{contestantCount} haben gewählt
                 </p>
               </div>
@@ -148,14 +154,14 @@ className="text-white/60 transition hover:text-white"
 
           {/* ----- Phase 2: Drop (Buzzern) ----- */}
           {state.phase === 'drop' && state.currentQuestion && (
-            <motion.div key="drop" {...wrap} className="space-y-5">
+            <motion.div key="drop" {...wrap} className="space-y-6">
               <motion.div variants={cardVariants} initial="initial" animate="animate" exit="exit">
                 <QuestionCard q={state.currentQuestion} ttsActive={state.ttsActive} />
               </motion.div>
-              <div className="pt-2">
+              <div className="pt-4">
                 <BuzzerButton onBuzz={buzz} disabled={buzzDisabled} hasBuzzed={hasBuzzed} />
               </div>
-              <p className="text-center text-sm font-medium text-white/50">
+              <p className="text-center text-sm font-medium text-white/60">
                 {hasBuzzed ? 'Du bist in der Warteschlange!' : 'Buzzern erlaubt – wer es weiß, drückt!'}
               </p>
             </motion.div>
@@ -163,14 +169,14 @@ className="text-white/60 transition hover:text-white"
 
           {/* ----- Phase 3/4: Hot Seat + Steal ----- */}
           {state.phase === 'hotseat' && state.currentQuestion && (
-            <motion.div key="hotseat" {...wrap} className="space-y-5">
-              <div className="flex flex-col items-center gap-3">
+            <motion.div key="hotseat" {...wrap} className="space-y-6">
+              <div className="flex flex-col items-center gap-4">
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
                 >
-                  <TimerRing timer={state.timer} size={140} />
+                  <TimerRing timer={state.timer} size={160} />
                 </motion.div>
                 {amActive ? (
                   <motion.div
@@ -179,10 +185,10 @@ className="text-white/60 transition hover:text-white"
                     transition={{ duration: 0.3, delay: 0.1 }}
                     className="text-center"
                   >
-                    <div className="inline-flex items-center gap-2 rounded-full bg-brand-600/30 px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-brand-200">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-brand-600/30 px-5 py-2 text-sm font-bold uppercase tracking-wider text-brand-200">
                       <Mic className="h-4 w-4" /> Du bist dran!
                     </div>
-                    <p className="mt-2 text-lg font-semibold">Sprich jetzt deine Antwort!</p>
+                    <p className="mt-3 text-xl font-semibold">Sprich jetzt deine Antwort!</p>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -191,8 +197,8 @@ className="text-white/60 transition hover:text-white"
                     transition={{ duration: 0.3, delay: 0.1 }}
                     className="text-center"
                   >
-                    <p className="text-sm text-white/50">Am Zug:</p>
-                    <p className="text-lg font-bold" style={{ color: activePlayer?.color }}>
+                    <p className="text-sm text-white/60">Am Zug:</p>
+                    <p className="text-xl font-bold" style={{ color: activePlayer?.color }}>
                       {activePlayer?.name ?? '—'}
                     </p>
                   </motion.div>
@@ -204,9 +210,9 @@ className="text-white/60 transition hover:text-white"
               </motion.div>
 
               {!amActive && (
-                <div className="space-y-3 pt-1">
+                <div className="space-y-4 pt-2">
                   {hasBuzzed ? (
-                    <p className="text-center text-sm font-medium text-amber-300">
+                    <p className="text-center text-base font-medium text-amber-300">
                       In der Warteschlange · Platz {myRank}
                     </p>
                   ) : (
@@ -218,34 +224,34 @@ className="text-white/60 transition hover:text-white"
                         sublabel="Buzzern für die Chance"
                       />
                       {(me?.jokers ?? 0) > 0 && ['drop', 'hotseat'].includes(state.phase) && (
-                        <div className="flex justify-center gap-2">
+                        <div className="flex justify-center gap-3">
                           <button
                             onClick={() => socket.emit('useJoker', { type: 'fifty' })}
-                            className="flex items-center gap-2 rounded-lg bg-purple-600/30 px-4 py-2 text-sm font-bold text-purple-200 transition hover:bg-purple-600/50 disabled:opacity-50"
+                            className="flex items-center gap-2 rounded-xl bg-purple-600/30 px-5 py-3 text-sm font-bold text-purple-200 transition hover:bg-purple-600/50 disabled:opacity-50"
                             disabled={(me?.jokers ?? 0) <= 0}
                           >
-                            <span className="text-lg">50/50</span>
-                            <span className="rounded-full bg-purple-600 px-2 py-0.5 text-xs">{me?.jokers ?? 0}</span>
+                            <span className="text-xl">50/50</span>
+                            <span className="rounded-full bg-purple-600 px-2.5 py-1 text-xs">{me?.jokers ?? 0}</span>
                           </button>
                           <button
                             onClick={() => socket.emit('useJoker', { type: 'audience' })}
-                            className="flex items-center gap-2 rounded-lg bg-blue-600/30 px-4 py-2 text-sm font-bold text-blue-200 transition hover:bg-blue-600/50 disabled:opacity-50"
+                            className="flex items-center gap-2 rounded-xl bg-blue-600/30 px-5 py-3 text-sm font-bold text-blue-200 transition hover:bg-blue-600/50 disabled:opacity-50"
                             disabled={(me?.jokers ?? 0) <= 0}
                           >
-                            <span className="text-lg">👥</span>
-                            <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs">{me?.jokers ?? 0}</span>
+                            <span className="text-xl">👥</span>
+                            <span className="rounded-full bg-blue-600 px-2.5 py-1 text-xs">{me?.jokers ?? 0}</span>
                           </button>
                         </div>
                       )}
                       {(me?.powerUps ?? []).length > 0 && ['drop', 'hotseat'].includes(state.phase) && (
-                        <div className="flex justify-center gap-2">
+                        <div className="flex justify-center gap-3">
                           {me?.powerUps.map((powerUp) => (
                             <button
                               key={powerUp.id}
                               onClick={() => socket.emit('usePowerUp', { powerUpId: powerUp.id })}
-                              className="flex items-center gap-2 rounded-lg bg-amber-600/30 px-4 py-2 text-sm font-bold text-amber-200 transition hover:bg-amber-600/50"
+                              className="flex items-center gap-2 rounded-xl bg-amber-600/30 px-5 py-3 text-sm font-bold text-amber-200 transition hover:bg-amber-600/50"
                             >
-                              <span className="text-lg">
+                              <span className="text-xl">
                                 {powerUp.type === 'doublePoints' ? '2x' : powerUp.type === 'shield' ? '🛡️' : '🎯'}
                               </span>
                             </button>
@@ -266,7 +272,7 @@ className="text-white/60 transition hover:text-white"
 
           {/* ----- Phase 5: Auflösung ----- */}
           {state.phase === 'reveal' && state.currentQuestion && (
-            <motion.div key="reveal" {...wrap} className="space-y-4">
+            <motion.div key="reveal" {...wrap} className="space-y-6">
               <ResultBanner />
               <QuestionCard q={state.currentQuestion} />
               <SectionTitle icon={<Trophy className="h-4 w-4" />}>Rangliste</SectionTitle>
@@ -276,13 +282,13 @@ className="text-white/60 transition hover:text-white"
 
           {/* ----- Game Over ----- */}
           {state.phase === 'gameover' && (
-            <motion.div key="gameover" {...wrap} className="space-y-4">
-              <div className="card p-6 text-center">
-                <Trophy className="mx-auto mb-2 h-10 w-10 text-yellow-400" />
-                <h2 className="text-2xl font-black">Spiel beendet!</h2>
+            <motion.div key="gameover" {...wrap} className="space-y-6">
+              <div className="card p-8 text-center">
+                <Trophy className="mx-auto mb-4 h-16 w-16 text-yellow-400" />
+                <h2 className="text-3xl font-black">Spiel beendet!</h2>
                 <button
                   onClick={() => setShowStats(true)}
-                  className="mt-3 rounded-lg bg-white/5 px-4 py-2 text-sm font-medium text-white/70 transition hover:bg-white/10"
+                  className="mt-4 rounded-xl bg-white/5 px-6 py-3 text-sm font-medium text-white/70 transition hover:bg-white/10"
                 >
                   Statistiken ansehen
                 </button>

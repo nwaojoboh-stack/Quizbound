@@ -58,27 +58,27 @@ export default function Presentation() {
   const q = state.currentQuestion
 
   return (
-    <div className="flex min-h-dvh flex-col px-6 py-5 sm:px-10 sm:py-8">
+    <div className="flex min-h-dvh flex-col px-8 py-6 sm:px-12 sm:py-10">
       <CueFlash />
       <header className="flex items-center justify-between">
         <Logo />
-        <div className="flex items-center gap-4">
-          <span className="text-white/60">Runde {state.round}</span>
-          <span className="rounded-xl bg-white/5 px-3 py-1.5 font-mono text-xl font-black tracking-[0.3em]">
+        <div className="flex items-center gap-6">
+          <span className="text-white/60 text-lg">Runde {state.round}</span>
+          <span className="rounded-xl bg-white/5 px-4 py-2 font-mono text-2xl font-black tracking-[0.3em]">
             {state.roomCode}
           </span>
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col justify-center py-6">
+      <main className="flex flex-1 flex-col justify-center py-8">
         <AnimatePresence mode="wait">
           {state.phase === 'lobby' && (
             <motion.div key="lobby" {...wrap} className="flex flex-col items-center text-center">
-              <h1 className="text-4xl font-black sm:text-6xl">Jetzt beitreten!</h1>
-              <div className="mt-8 rounded-3xl bg-white p-5">
-                <QRCodeSVG value={joinLink} size={240} />
+              <h1 className="text-5xl font-black sm:text-7xl">Jetzt beitreten!</h1>
+              <div className="mt-10 rounded-3xl bg-white p-6">
+                <QRCodeSVG value={joinLink} size={280} />
               </div>
-              <div className="mt-6 font-mono text-6xl font-black tracking-[0.4em]">{state.roomCode}</div>
+              <div className="mt-8 font-mono text-7xl font-black tracking-[0.4em]">{state.roomCode}</div>
             </motion.div>
           )}
 
@@ -88,11 +88,11 @@ export default function Presentation() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                className="mb-8 text-4xl font-black sm:text-5xl"
+                className="mb-10 text-5xl font-black sm:text-6xl"
               >
                 Kategorie-Wahl
               </motion.h1>
-              <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 lg:grid-cols-3">
+              <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 lg:grid-cols-3">
                 {state.categoryOptions.map((o, i) => (
                   <motion.div
                     key={o.id}
@@ -100,10 +100,10 @@ export default function Presentation() {
                     initial="initial"
                     animate="animate"
                     transition={{ delay: i * 0.1 }}
-                    className="card flex flex-col items-center p-6"
+                    className="card flex flex-col items-center p-8"
                   >
                     <span className="text-2xl font-bold">{o.category}</span>
-                    <span className="my-2 font-mono text-4xl font-black text-gradient">{o.points}</span>
+                    <span className="my-3 font-mono text-5xl font-black text-gradient">{o.points}</span>
                   </motion.div>
                 ))}
               </div>
@@ -119,34 +119,34 @@ export default function Presentation() {
           )}
 
           {(state.phase === 'drop' || state.phase === 'hotseat' || state.phase === 'reveal') && q && (
-            <motion.div key="question" {...wrap} className="mx-auto w-full max-w-5xl text-center">
+            <motion.div key="question" {...wrap} className="mx-auto w-full max-w-6xl text-center">
               <motion.div
                 variants={cardVariants}
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="space-y-6"
+                className="space-y-8"
               >
-                <div className="mb-6 flex items-center justify-center gap-4">
-                  <span className="text-xl font-semibold uppercase tracking-wider text-white/50">{q.category}</span>
-                  <div className="rounded-lg bg-brand-500/20 px-3 py-1 text-sm font-bold text-brand-300">
+                <div className="mb-8 flex items-center justify-center gap-4">
+                  <span className="text-xl font-semibold uppercase tracking-wider text-white/60">{q.category}</span>
+                  <div className="rounded-lg bg-brand-500/20 px-4 py-1.5 text-sm font-bold text-brand-300">
                     +{q.points}
                   </div>
                 </div>
-                <p className="text-4xl font-black leading-tight sm:text-6xl">{q.text}</p>
+                <p className="text-5xl font-black leading-tight sm:text-7xl">{q.text}</p>
               </motion.div>
 
               {state.phase === 'drop' && (
-                <div className="mt-10 inline-flex items-center gap-3 rounded-full bg-rose-600/20 px-6 py-3 text-2xl font-black uppercase tracking-wider text-rose-300">
-                  {state.ttsActive ? <Mic className="h-6 w-6 animate-pulse" /> : null}
+                <div className="mt-12 inline-flex items-center gap-3 rounded-full bg-rose-600/20 px-8 py-4 text-3xl font-black uppercase tracking-wider text-rose-300">
+                  {state.ttsActive ? <Mic className="h-7 w-7 animate-pulse" /> : null}
                   Buzzern!
                 </div>
               )}
 
               {state.phase === 'hotseat' && (
-                <div className="mt-8 flex flex-col items-center gap-4">
-                  <TimerRing timer={state.timer} size={160} stroke={12} />
-                  <div className="inline-flex items-center gap-3 rounded-full bg-brand-600/30 px-6 py-3 text-3xl font-black">
+                <div className="mt-10 flex flex-col items-center gap-5">
+                  <TimerRing timer={state.timer} size={180} stroke={12} />
+                  <div className="inline-flex items-center gap-3 rounded-full bg-brand-600/30 px-8 py-4 text-3xl font-black">
                     <Mic className="h-7 w-7" style={{ color: activePlayer?.color }} />
                     <span style={{ color: activePlayer?.color }}>{activePlayer?.name}</span>
                   </div>
@@ -157,10 +157,10 @@ export default function Presentation() {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mx-auto mt-8 w-fit rounded-2xl border border-emerald-500/40 bg-emerald-500/15 px-10 py-6"
+                  className="mx-auto mt-10 w-fit rounded-2xl border border-emerald-500/40 bg-emerald-500/15 px-12 py-8"
                 >
                   <div className="text-lg font-bold uppercase tracking-wider text-emerald-400/80">Lösung</div>
-                  <div className="text-4xl font-black text-emerald-300 sm:text-5xl">{q.answer}</div>
+                  <div className="text-5xl font-black text-emerald-300 sm:text-6xl">{q.answer}</div>
                   {state.lastResult?.correct && (
                     <div className="mt-2 text-xl text-white/70">
                       {state.lastResult.playerName} · +{state.lastResult.pointsDelta}
@@ -173,28 +173,28 @@ export default function Presentation() {
 
           {state.phase === 'gameover' && (
             <motion.div key="over" {...wrap} className="text-center">
-              <Crown className="mx-auto mb-4 h-16 w-16 text-yellow-400" />
-              <h1 className="text-5xl font-black">{contestants[0]?.name ?? 'Spiel beendet'}</h1>
-              <p className="mt-2 text-2xl text-white/50">gewinnt mit {contestants[0]?.score ?? 0} Punkten</p>
+              <Crown className="mx-auto mb-5 h-20 w-20 text-yellow-400" />
+              <h1 className="text-6xl font-black">{contestants[0]?.name ?? 'Spiel beendet'}</h1>
+              <p className="mt-3 text-2xl text-white/60">gewinnt mit {contestants[0]?.score ?? 0} Punkten</p>
             </motion.div>
           )}
         </AnimatePresence>
       </main>
 
       {/* Leaderboard-Leiste */}
-      <footer className="flex flex-wrap items-center justify-center gap-3">
+      <footer className="flex flex-wrap items-center justify-center gap-4">
         {contestants.slice(0, 8).map((p, i) => (
           <motion.div
             layout
             key={p.id}
             className={cn(
-              'flex items-center gap-2 rounded-xl border px-4 py-2',
+              'flex items-center gap-3 rounded-xl border px-5 py-3',
               p.id === state.activePlayerId
                 ? 'border-brand-500 bg-brand-600/20'
                 : 'border-white/10 bg-white/5',
             )}
           >
-            <span className={cn('font-mono font-black', i === 0 ? 'text-yellow-400' : 'text-white/60')}>
+            <span className={cn('font-mono font-black text-lg', i === 0 ? 'text-yellow-400' : 'text-white/60')}>
               {i + 1}
             </span>
             <span className="h-3 w-3 rounded-full" style={{ background: p.color }} />

@@ -60,7 +60,7 @@ export default function Landing() {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-5xl flex-col px-5 py-6">
+    <div className="mx-auto flex min-h-dvh max-w-6xl flex-col px-6 py-8">
       <header className="flex items-center justify-between">
         <Logo />
         <ConnectionDot />
@@ -73,7 +73,7 @@ export default function Landing() {
           onClick={() =>
             nav(identity.role === 'spectator' ? `/present/${identity.roomCode}` : `/room/${identity.roomCode}`)
           }
-          className="mt-5 flex items-center justify-between gap-3 rounded-xl border border-brand-500/40 bg-brand-600/15 px-4 py-3 text-left transition hover:bg-brand-600/25"
+          className="mt-6 flex items-center justify-between gap-3 rounded-xl border border-brand-500/40 bg-brand-600/15 px-5 py-4 text-left transition hover:bg-brand-600/25"
         >
           <span className="flex items-center gap-2 text-sm">
             <RotateCcw className="h-4 w-4 text-brand-300" />
@@ -83,29 +83,29 @@ export default function Landing() {
         </motion.button>
       )}
 
-      <div className="flex flex-1 flex-col justify-center py-10">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-10 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/60">
-            <Radio className="h-3.5 w-3.5 text-accent" />
+      <div className="flex flex-1 flex-col justify-center py-12">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mb-12 text-center">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/60">
+            <Radio className="h-4 w-4 text-accent" />
             Kompetitive Live-Voice-Quiz-Engine
           </div>
-          <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-6xl">
+          <h1 className="text-5xl font-black leading-tight tracking-tight sm:text-7xl">
             Wissen. Reaktion. <span className="text-gradient">Buzzer.</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-white/55">
+          <p className="mx-auto mt-5 max-w-2xl text-lg text-white/60">
             Keine Multiple-Choice-Antworten. Millisekunden-genauer Server-Buzzer, Steal-Mechanik und ein
             God-Mode-Dashboard für den Moderator. Spielbar auf Handy, Tablet und PC.
           </p>
         </motion.div>
 
-        <div className="grid items-start gap-5 md:grid-cols-2">
-          <Card className="border-brand-500/30">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-lg bg-brand-600/20 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-brand-300">
+        <div className="grid items-start gap-6 md:grid-cols-2">
+          <Card className="border-brand-500/30 p-6">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-lg bg-brand-600/20 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-brand-300">
               <Mic className="h-4 w-4" /> Spiel leiten
             </div>
-            <h2 className="text-xl font-bold">Neuen Raum erstellen</h2>
-            <p className="mt-1 text-sm text-white/50">Du wirst Moderator und steuerst das Spiel.</p>
-            <div className="mt-4">
+            <h2 className="text-2xl font-bold">Neuen Raum erstellen</h2>
+            <p className="mt-2 text-sm text-white/60">Du wirst Moderator und steuerst das Spiel.</p>
+            <div className="mt-5">
               <label className="label">Dein Name</label>
               <input
                 className="input"
@@ -116,7 +116,7 @@ export default function Landing() {
                 onKeyDown={(e) => e.key === 'Enter' && onCreate()}
               />
             </div>
-            <div className="mt-4">
+            <div className="mt-5">
               <label className="label">Avatar wählen</label>
               <div className="grid grid-cols-5 gap-2">
                 {AVATARS.map((a) => (
@@ -124,7 +124,7 @@ export default function Landing() {
                     key={a}
                     type="button"
                     onClick={() => setAvatar(a)}
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg text-2xl transition ${
+                    className={`flex h-12 w-12 items-center justify-center rounded-lg text-2xl transition ${
                       avatar === a
                         ? 'bg-brand-500/30 border-2 border-brand-500'
                         : 'bg-white/5 border-2 border-transparent hover:bg-white/10'
@@ -135,19 +135,19 @@ export default function Landing() {
                 ))}
               </div>
             </div>
-            <Button className="mt-4 w-full" size="lg" onClick={onCreate} disabled={busy !== null}>
+            <Button className="mt-5 w-full" size="lg" onClick={onCreate} disabled={busy !== null}>
               <Zap className="h-5 w-5" />
               {busy === 'create' ? 'Erstelle …' : 'Raum erstellen'}
             </Button>
           </Card>
 
-          <Card>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-lg bg-white/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white/70">
+          <Card className="p-6">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white/70">
               <LogIn className="h-4 w-4" /> Mitspielen
             </div>
-            <h2 className="text-xl font-bold">Raum beitreten</h2>
-            <p className="mt-1 text-sm text-white/50">Gib den Code vom Moderator ein.</p>
-            <div className="mt-4 grid grid-cols-1 gap-3">
+            <h2 className="text-2xl font-bold">Raum beitreten</h2>
+            <p className="mt-2 text-sm text-white/60">Gib den Code vom Moderator ein.</p>
+            <div className="mt-5 grid grid-cols-1 gap-4">
               <div>
                 <label className="label">Raum-Code</label>
                 <input
@@ -178,7 +178,7 @@ export default function Landing() {
                       key={a}
                       type="button"
                       onClick={() => setAvatar(a)}
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg text-2xl transition ${
+                      className={`flex h-12 w-12 items-center justify-center rounded-lg text-2xl transition ${
                         avatar === a
                           ? 'bg-brand-500/30 border-2 border-brand-500'
                           : 'bg-white/5 border-2 border-transparent hover:bg-white/10'
@@ -190,17 +190,17 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-            <Button className="mt-4 w-full" size="lg" variant="secondary" onClick={onJoin} disabled={busy !== null}>
+            <Button className="mt-5 w-full" size="lg" variant="secondary" onClick={onJoin} disabled={busy !== null}>
               <ArrowRight className="h-5 w-5" />
               {busy === 'join' ? 'Trete bei …' : 'Beitreten'}
             </Button>
           </Card>
         </div>
 
-        <div className="mt-6 flex items-center justify-center">
+        <div className="mt-8 flex items-center justify-center">
           <button
             onClick={() => code.trim().length >= 4 && nav(`/present/${code.trim().toUpperCase()}`)}
-            className="flex items-center gap-2 text-sm text-white/40 transition hover:text-white/70"
+            className="flex items-center gap-2 text-sm text-white/50 transition hover:text-white/70"
           >
             <Tv className="h-4 w-4" />
             Beamer-/Präsentationsansicht öffnen (Code oben eingeben)
@@ -208,7 +208,7 @@ export default function Landing() {
         </div>
       </div>
 
-      <footer className="py-4 text-center text-xs text-white/30">
+      <footer className="py-6 text-center text-xs text-white/40">
         Tipp: Sprach-Chat läuft parallel über Discord o. Ä. – integrierter Voice folgt.
       </footer>
     </div>

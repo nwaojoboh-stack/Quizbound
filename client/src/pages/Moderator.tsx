@@ -114,18 +114,18 @@ export default function Moderator() {
   }
 
   return (
-    <div className="mx-auto min-h-dvh max-w-7xl px-4 pb-10">
-      <header className="sticky top-0 z-20 -mx-4 mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-white/5 bg-bg/70 px-4 py-3 backdrop-blur-xl">
-        <div className="flex items-center gap-3">
+    <div className="mx-auto min-h-dvh max-w-7xl px-4 pb-8">
+      <header className="sticky top-0 z-20 -mx-4 mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/5 bg-bg/80 px-4 py-4 backdrop-blur-xl">
+        <div className="flex items-center gap-4">
           <Logo />
-          <span className="rounded-lg bg-brand-600/20 px-2 py-1 text-xs font-bold uppercase tracking-wider text-brand-300">
+          <span className="rounded-lg bg-brand-600/20 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-brand-300">
             Moderator
           </span>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={copyLink}
-            className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-1.5 font-mono text-lg font-black tracking-[0.3em] transition hover:bg-white/10"
+            className="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 font-mono text-lg font-black tracking-[0.3em] transition hover:bg-white/10"
             title="Einladungslink kopieren"
           >
             {state.roomCode}
@@ -141,12 +141,12 @@ export default function Moderator() {
         </div>
       </header>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_1.4fr_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr_1fr]">
         {/* ---------- Linke Spalte: Steuerung ---------- */}
-        <div className="space-y-4">
-          <div className="card p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-white/50">Steuerung</h3>
+        <div className="space-y-5">
+          <div className="card p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-white/60">Steuerung</h3>
               <span className="text-xs text-white/60">Runde {state.round}</span>
             </div>
             <PhaseControls state={state} />
@@ -158,7 +158,7 @@ export default function Moderator() {
               onClick={() => setShowCustom((v) => !v)}
               className="flex w-full items-center justify-between p-4 text-left"
             >
-              <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white/50">
+              <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white/60">
                 <Plus className="h-4 w-4" /> Eigene Kategorien
               </span>
               <ChevronDown className={cn('h-4 w-4 transition', showCustom && 'rotate-180')} />
@@ -172,7 +172,7 @@ export default function Moderator() {
               onClick={() => setShowSettings((v) => !v)}
               className="flex w-full items-center justify-between p-4 text-left"
             >
-              <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white/50">
+              <span className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white/60">
                 Einstellungen
               </span>
               <ChevronDown className={cn('h-4 w-4 transition', showSettings && 'rotate-180')} />
@@ -182,30 +182,30 @@ export default function Moderator() {
         </div>
 
         {/* ---------- Mitte: Bühne ---------- */}
-        <div className="space-y-4">
+        <div className="space-y-5">
           {state.phase === 'lobby' && (
-            <div className="card flex flex-col items-center p-6 text-center">
-              <h2 className="text-xl font-bold">Spieler beitreten lassen</h2>
-              <p className="mt-1 text-sm text-white/50">QR scannen oder Code teilen</p>
-              <div className="mt-5 rounded-2xl bg-white p-3">
-                <QRCodeSVG value={joinLink} size={180} />
+            <div className="card flex flex-col items-center p-8 text-center">
+              <h2 className="text-2xl font-bold">Spieler beitreten lassen</h2>
+              <p className="mt-2 text-sm text-white/60">QR scannen oder Code teilen</p>
+              <div className="mt-6 rounded-2xl bg-white p-4">
+                <QRCodeSVG value={joinLink} size={200} />
               </div>
-              <div className="mt-4 font-mono text-3xl font-black tracking-[0.4em]">{state.roomCode}</div>
-              <p className="mt-3 flex items-center gap-2 text-sm text-white/50">
+              <div className="mt-5 font-mono text-4xl font-black tracking-[0.4em]">{state.roomCode}</div>
+              <p className="mt-4 flex items-center gap-2 text-sm text-white/60">
                 <Users className="h-4 w-4" /> {contestantCount} Mitspieler bereit
               </p>
             </div>
           )}
 
           {state.phase === 'category' && (
-            <div className="card p-5">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-lg font-bold">Kategorie-Wahl</h2>
-                <span className="text-sm text-white/50">
+            <div className="card p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-bold">Kategorie-Wahl</h2>
+                <span className="text-sm text-white/60">
                   {votedCount}/{contestantCount} abgestimmt
                 </span>
               </div>
-              <p className="mb-3 text-sm text-white/50">
+              <p className="mb-4 text-sm text-white/60">
                 Tippe eine Karte, um sie zu <span className="font-semibold text-brand-300">erzwingen</span>, oder
                 löse per Mehrheit auf (Leertaste).
               </p>
@@ -220,9 +220,9 @@ export default function Moderator() {
 
           {(state.phase === 'drop' || state.phase === 'hotseat' || state.phase === 'reveal') &&
             state.currentQuestion && (
-              <div className="card p-5">
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold uppercase tracking-wider text-white/50">
+              <div className="card p-6">
+                <div className="mb-4 flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold uppercase tracking-wider text-white/60">
                     {state.currentQuestion.category}
                   </span>
                   <div className="rounded-lg bg-brand-500/20 px-3 py-1 text-sm font-bold text-brand-300">
@@ -231,7 +231,7 @@ export default function Moderator() {
                 </div>
                 <p className="text-2xl font-bold leading-snug">{state.currentQuestion.text}</p>
                 {answerVisible && (
-                  <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3">
+                  <div className="mt-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
                     <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400/80">
                       <Eye className="h-3.5 w-3.5" /> Lösung (nur für dich)
                     </div>
@@ -239,8 +239,8 @@ export default function Moderator() {
                   </div>
                 )}
                 {state.phase === 'hotseat' && (
-                  <div className="mt-5 flex items-center gap-4">
-                    <TimerRing timer={state.timer} size={96} stroke={8} />
+                  <div className="mt-6 flex items-center gap-4">
+                    <TimerRing timer={state.timer} size={110} stroke={8} />
                     <div>
                       <div className="text-xs uppercase text-white/60">Am Zug</div>
                       <div className="text-2xl font-black" style={{ color: activePlayer?.color }}>
@@ -250,7 +250,7 @@ export default function Moderator() {
                   </div>
                 )}
                 {state.phase === 'drop' && (
-                  <p className="mt-4 text-sm text-white/50">
+                  <p className="mt-5 text-sm text-white/60">
                     {state.ttsActive ? 'Bot liest vor …' : 'Bereit'} · Warte auf den ersten Buzz.
                   </p>
                 )}
@@ -258,23 +258,23 @@ export default function Moderator() {
             )}
 
           {state.phase === 'gameover' && (
-            <div className="card p-6 text-center">
-              <Trophy className="mx-auto mb-2 h-10 w-10 text-yellow-400" />
+            <div className="card p-8 text-center">
+              <Trophy className="mx-auto mb-3 h-12 w-12 text-yellow-400" />
               <h2 className="text-2xl font-black">Spiel beendet</h2>
-              <p className="mt-1 text-white/50">Starte ein neues Spiel über die Steuerung.</p>
+              <p className="mt-2 text-white/60">Starte ein neues Spiel über die Steuerung.</p>
             </div>
           )}
         </div>
 
         {/* ---------- Rechte Spalte: Queue + Rangliste ---------- */}
-        <div className="space-y-4">
-          <div className="card p-4">
-            <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-white/50">Buzzer-Queue</h3>
+        <div className="space-y-5">
+          <div className="card p-5">
+            <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-white/60">Buzzer-Queue</h3>
             <BuzzQueue queue={state.buzzQueue} activePlayerId={state.activePlayerId} />
           </div>
-          <div className="card p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-white/50">Rangliste</h3>
+          <div className="card p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-white/60">Rangliste</h3>
               <button
                 onClick={() => mod.resetScores()}
                 className="flex items-center gap-1 text-xs text-white/60 transition hover:text-white"
